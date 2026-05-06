@@ -1347,36 +1347,12 @@ document.addEventListener("keydown", function(e){
 if(e.ctrlKey && e.key.toLowerCase() === "g"){
 
 e.preventDefault();
-
-toggleCamouflage();
-}
-});
-
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
-
 let tapCount = 0;
 let pressTimer;
 
+document.addEventListener("touchstart", function(){
 
-document.addEventListener("touchend", function(){
-
-    tapCount++;
-
-    if(tapCount === 1){
-        setTimeout(() => {
-            if(tapCount === 4){
-                toggleCamouflage();
-            }
-            tapCount = 0;
-        }, 600);
-    }
-
-});
-
-
-document.addEventListener("touchstart", function(e){
+    if(camouflage) return;
 
     pressTimer = setTimeout(() => {
 
@@ -1394,15 +1370,33 @@ document.addEventListener("touchstart", function(e){
             }
         }
 
-    }, 1000);
+    }, 3000);
 
 });
 
 document.addEventListener("touchend", function(){
+
+    if(camouflage) return;
+
     clearTimeout(pressTimer);
+
+    tapCount++;
+
+    if(tapCount === 1){
+        setTimeout(() => {
+            if(tapCount === 4){
+                toggleCamouflage();
+            }
+            tapCount = 0;
+        }, 600);
+    }
+
 });
 
 document.addEventListener("touchmove", function(){
+
+    if(camouflage) return;
+
     clearTimeout(pressTimer);
 });
 </script>
