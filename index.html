@@ -1344,31 +1344,37 @@ renderVault();
 
 document.addEventListener("keydown", function(e){
 
-if(e.ctrlKey && e.key.toLowerCase() === "g"){
+    if(e.ctrlKey && e.key.toLowerCase() === "g"){
+        e.preventDefault();
+        toggleCamouflage();
+    }
 
-e.preventDefault();
+    if(e.ctrlKey && e.key.toLowerCase() === "d"){
+        e.preventDefault();
 
-let tapCount = 0;
-let pressTimer;
+        const vaultVisible = !$("vault").classList.contains("hidden");
 
+        if(vaultVisible){
+            mostrar("traductor");
+        }else{
+            let key = prompt("ENTER VAULT ACCESS KEY");
 
-document.addEventListener("touchend", function(){
-
-    tapCount++;
-
-    if(tapCount === 1){
-        setTimeout(() => {
-            if(tapCount === 4){
-                toggleCamouflage();
+            if(key === decryptKey){
+                mostrar("vault");
+            }else{
+                playSound("error");
             }
-            tapCount = 0;
-        }, 600);
+        }
     }
 
 });
 
+let tapCount = 0;
+let pressTimer;
 
 document.addEventListener("touchstart", function(){
+
+    if(camouflage) return;
 
     pressTimer = setTimeout(() => {
 
@@ -1391,6 +1397,25 @@ document.addEventListener("touchstart", function(){
 });
 
 document.addEventListener("touchend", function(){
+
+    if(camouflage) return;
+
+    clearTimeout(pressTimer);
+
+    tapCount++;
+
+    if(tapCount === 1){
+        setTimeout(() => {
+            if(tapCount === 4){
+                toggleCamouflage();
+            }
+            tapCount = 0;
+        }, 600);
+    }
+
+});
+
+document.addEventListener("touchmove", function(){
     clearTimeout(pressTimer);
 });
 
