@@ -1347,22 +1347,23 @@ if ("serviceWorker" in navigator) {
 }
 
 
-document.addEventListener("touchend", function(){
+let lastTap = 0;
+let pressTimer;
 
-    tapCount++;
+// DOBLE TAP
+document.addEventListener("touchend", function(e){
 
-    if(tapCount === 1){
-        setTimeout(() => {
-            if(tapCount === 2){
-                toggleCamouflage();
-            }
-            tapCount = 0;
-        }, 300);
+    const now = new Date().getTime();
+    const diff = now - lastTap;
+
+    if(diff < 300 && diff > 0){
+        toggleCamouflage();
     }
 
+    lastTap = now;
 });
 
-
+// LONG PRESS
 document.addEventListener("touchstart", function(){
 
     pressTimer = setTimeout(() => {
@@ -1381,7 +1382,7 @@ document.addEventListener("touchstart", function(){
             }
         }
 
-    }, 1500);
+    }, 1000);
 
 });
 
