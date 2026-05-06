@@ -878,9 +878,17 @@ function calcPress(v){
         }catch{
             d.value = "ERROR";
         }
-    }else{
-        d.value += v;
+        return;
     }
+
+    d.value += v;
+
+    // CERRAR CALCULADORA
+    if(d.value === "123"){
+        toggleCamouflage();
+        return;
+    }
+
 }
 
 /*  EXPORT  */
@@ -1362,10 +1370,11 @@ document.addEventListener("touchend", function(){
                 toggleCamouflage();
             }
             tapCount = 0;
-        }, 300);
+        }, 700);
     }
 
 });
+
 
 document.addEventListener("touchstart", function(){
 
@@ -1385,7 +1394,7 @@ document.addEventListener("touchstart", function(){
             }
         }
 
-    }, 1500);
+    }, 3000);
 
 });
 
