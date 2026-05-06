@@ -1,6 +1,6 @@
 self.addEventListener("install", e => {
     e.waitUntil(
-        caches.open("cipher-cache").then(cache => {
+        caches.open("cipher-cache-v2").then(cache => {
             return cache.addAll([
                 "./",
                 "./index.html",
