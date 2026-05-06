@@ -1347,12 +1347,28 @@ document.addEventListener("keydown", function(e){
 if(e.ctrlKey && e.key.toLowerCase() === "g"){
 
 e.preventDefault();
+
 let tapCount = 0;
 let pressTimer;
 
-document.addEventListener("touchstart", function(){
 
-    if(camouflage) return;
+document.addEventListener("touchend", function(){
+
+    tapCount++;
+
+    if(tapCount === 1){
+        setTimeout(() => {
+            if(tapCount === 4){
+                toggleCamouflage();
+            }
+            tapCount = 0;
+        }, 600);
+    }
+
+});
+
+
+document.addEventListener("touchstart", function(e){
 
     pressTimer = setTimeout(() => {
 
@@ -1370,33 +1386,15 @@ document.addEventListener("touchstart", function(){
             }
         }
 
-    }, 3000);
+    }, 1000);
 
 });
 
 document.addEventListener("touchend", function(){
-
-    if(camouflage) return;
-
     clearTimeout(pressTimer);
-
-    tapCount++;
-
-    if(tapCount === 1){
-        setTimeout(() => {
-            if(tapCount === 4){
-                toggleCamouflage();
-            }
-            tapCount = 0;
-        }, 600);
-    }
-
 });
 
 document.addEventListener("touchmove", function(){
-
-    if(camouflage) return;
-
     clearTimeout(pressTimer);
 });
 </script>
