@@ -454,14 +454,16 @@ const key = localStorage.getItem('key') || '24212860';
 
 if(pass.value === key){
     playSound("success");
-localStorage.setItem("lastAccess", new Date().toLocaleString());
-$("login").style.display = 'none';
-$("access").classList.add('show');
+    localStorage.setItem("lastAccess", new Date().toLocaleString());
+    $("login").style.display = 'none';
+    $("access").classList.add('show');
 
-setTimeout(()=>{
-$("access").classList.remove('show');
-$("app").classList.remove('hidden');
-},1200);
+    setTimeout(()=>{
+        $("access").classList.remove('show');
+        $("app").classList.remove('hidden');
+        enableMobileGestures();
+    },1200);
+
 }
 else {
     playSound("error");
@@ -1348,21 +1350,12 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
 
-function appUnlocked(){
-    return !$("app").classList.contains("hidden");
-}
+function enableMobileGestures(){
 
 let lastTap = 0;
 let pressTimer;
 
-function appUnlocked(){
-    return !$("app").classList.contains("hidden");
-}
-
-// DOBLE TAP
 document.addEventListener("touchend", function(){
-
-    if(!appUnlocked()) return;
 
     let now = Date.now();
 
@@ -1375,10 +1368,7 @@ document.addEventListener("touchend", function(){
     clearTimeout(pressTimer);
 });
 
-// LONG PRESS
 document.addEventListener("touchstart", function(){
-
-    if(!appUnlocked()) return;
 
     pressTimer = setTimeout(() => {
 
@@ -1399,6 +1389,8 @@ document.addEventListener("touchstart", function(){
     }, 1000);
 
 });
+
+}
 </script>
 
 </body>
