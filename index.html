@@ -1345,6 +1345,49 @@ toggleCamouflage();
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
+
+
+document.addEventListener("touchend", function(){
+
+    tapCount++;
+
+    if(tapCount === 1){
+        setTimeout(() => {
+            if(tapCount === 2){
+                toggleCamouflage();
+            }
+            tapCount = 0;
+        }, 300);
+    }
+
+});
+
+
+document.addEventListener("touchstart", function(){
+
+    pressTimer = setTimeout(() => {
+
+        const vaultVisible = !$("vault").classList.contains("hidden");
+
+        if(vaultVisible){
+            mostrar("traductor");
+        }else{
+            let key = prompt("ENTER VAULT ACCESS KEY");
+
+            if(key === decryptKey){
+                mostrar("vault");
+            }else{
+                playSound("error");
+            }
+        }
+
+    }, 1500);
+
+});
+
+document.addEventListener("touchend", function(){
+    clearTimeout(pressTimer);
+});
 </script>
 
 </body>
