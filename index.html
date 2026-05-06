@@ -1368,7 +1368,7 @@ document.addEventListener("touchend", function(){
 });
 
 
-document.addEventListener("touchstart", function(e){
+document.addEventListener("touchstart", function(){
 
     pressTimer = setTimeout(() => {
 
@@ -1386,7 +1386,7 @@ document.addEventListener("touchstart", function(e){
             }
         }
 
-    }, 1000);
+    }, 5000);
 
 });
 
@@ -1394,9 +1394,6 @@ document.addEventListener("touchend", function(){
     clearTimeout(pressTimer);
 });
 
-document.addEventListener("touchmove", function(){
-    clearTimeout(pressTimer);
-});
 </script>
 
 </body>
