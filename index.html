@@ -1343,11 +1343,13 @@ renderVault();
 
 
 let tapCount = 0;
-let pressTimer = 2;
+let pressTimer;
 
-document.addEventListener("touchstart", function(){
+document.addEventListener("touchstart", function(e){
 
     if(camouflage) return;
+
+    if(e.touches.length !== 1) return;
 
     pressTimer = setTimeout(() => {
 
