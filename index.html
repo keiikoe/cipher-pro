@@ -1,0 +1,1351 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIPHER PRO</title>
+<link rel="icon" type="image/png" href="lol.png">
+<link rel="shortcut icon" href="lol.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9333ea">
+<style>
+
+body {
+    font-family: 'Segoe UI', monospace;
+    background: radial-gradient(circle at top, #05000f, #000);
+    color: #c084fc;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0.15;
+}
+
+.container { 
+    max-width: 1100px; 
+    margin: auto; 
+}
+
+.hidden { 
+    display:none; 
+}
+
+.panel {
+    background: rgba(10,10,10,0.85);
+    border: 1px solid rgba(147,51,234,0.4);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 0 35px rgba(147,51,234,0.25);
+    backdrop-filter: blur(12px);
+    animation: boot 0.5s ease;
+}
+
+@keyframes boot {
+    from { opacity:0; transform: scale(0.97); filter: blur(6px); }
+    to { opacity:1; transform: scale(1); filter: blur(0); }
+}
+
+textarea {
+    width: 100%;
+    height: 220px;
+    background: #000;
+    color: #00ff88;
+    border: 1px solid #9333ea;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 15px;
+}
+
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 18px #9333ea;
+}
+
+button {
+    padding: 11px 16px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg,#4c1d95,#9333ea);
+    color: white;
+    cursor: pointer;
+    font-family: monospace;
+    transition: .25s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(147,51,234,0.7);
+}
+
+h1 {
+    text-align: center;
+    text-shadow: 0 0 10px #9333ea;
+}
+
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(1px, -1px); }
+    60% { transform: translate(-1px, -1px); }
+    80% { transform: translate(1px, 1px); }
+    100% { transform: translate(0); }
+}
+
+#login h1 {
+    animation: glitch 1.8s infinite;
+    text-shadow: 0 0 10px #9333ea, 0 0 20px;
+    letter-spacing: 2px;
+}
+
+.terminal {
+    background: #000;
+    color: #00ff88;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #9333ea;
+    font-family: monospace;
+    min-height: 120px;
+    white-space: pre-wrap;
+}
+
+.loader {
+    display:none;
+    text-align:center;
+    color:#00ff88;
+    margin-top:10px;
+    font-family: monospace;
+}
+
+#access {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #00ff88;
+    font-size: 42px;
+    display: none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+#access.show { 
+    display:flex; 
+}
+
+
+.neon {
+    background:#ffe600;
+    color:#000;
+    padding:2px 4px;
+    border-radius:4px;
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="login" class="container" 
+  style="min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;">
+
+    <div class="panel" style="width:420px;text-align:center;">
+        <h1>CIPHER PRO</h1>
+        <input type="password" 
+        id="pass" 
+        placeholder="ACCESS KEY" 
+        
+        style="width:90%;
+        padding:14px;
+        background:#000;
+        border:1px solid #9333ea;
+        color:#00ff88;">
+
+        <br><br>
+        <button onclick="acceder()" style="width:100%;">INIT</button>
+    </div>
+</div>
+
+<div id="access" class="hidden">ACCESS GRANTED</div>
+
+<div id="app" class="container hidden">
+
+<h1>CIPHER PRO</h1>
+
+<div style="text-align:center;">
+<button onclick="mostrar('traductor')">TERMINAL</button>
+<button onclick="mostrar('historial')">LOGS</button>
+<button onclick="mostrar('config')">SYSTEM</button>
+</div>
+
+<div id="traductor" class="panel">
+<textarea id="entrada"></textarea>
+<button onclick="encrypt()">ENCRYPT</button>
+<button onclick="decrypt()">DECRYPT</button>
+<button onclick="copiar()">COPY</button>
+<button onclick="limpiar()">CLEAR</button>
+<button onclick="exportar()">EXPORT</button>
+<div class="loader" id="loader">PROCESSING...</div>
+<div class="terminal" id="salida"></div>
+</div>
+
+<div id="historial" class="panel hidden">
+<h2>SYSTEM LOGS</h2>
+    <input type="text" id="searchLog" placeholder="> search logs..." oninput="filtrarHistorial()" 
+    style="width:100%;
+    padding:10px;
+    background:#000;
+    color:#00ff88;
+    border:1px solid #9333ea;
+    font-family:monospace;">
+
+<button onclick="mostrarHistorial(); console.log('refresh logs')">REFRESH</button>
+<button onclick="deleteSelected()">DELETE SELECTED</button>
+<button onclick="deleteAllLogs()">DELETE ALL</button>
+<div id="logBox"></div>
+</div>
+
+<div id="config" class="panel hidden">
+
+<h2>SYSTEM CONTROL</h2>
+
+<button onclick="changePassword()">CHANGE LOGIN PASSWORD</button>
+
+<br><br>
+
+<button onclick="toggleCamouflage()">ENABLE CAMOUFLAGE</button>
+
+<div id="pwdStatus" style="margin-top:10px;color:#c084fc;"></div>
+
+</div>
+
+<div id="vault" class="panel hidden">
+
+<h2 style="text-align:center;">PERSONAL VAULT</h2>
+
+<div style="margin-bottom:20px;">
+
+
+
+</div>
+
+<div style="display:flex;gap:20px;flex-wrap:wrap;">
+
+<!-- CREAR NOTA -->
+<div style="flex:1;min-width:320px;">
+
+<h3 style="color:#00ff88;">NEW SECURE ENTRY</h3>
+<input id="vaultTitle" placeholder="ENTRY TITLE..." style="
+width:100%;
+padding:14px;
+margin-bottom:12px;
+background:#000;
+color:#00ff88;
+border:1px solid #9333ea;
+font-family:monospace;">
+
+<textarea 
+id="vaultInput" 
+placeholder="WRITE YOUR SECRET ENTRY..."
+style="height:220px;"></textarea>
+
+<select id="vaultFolder" style="
+width:100%;
+padding:14px;
+margin-top:10px;
+margin-bottom:18px;
+background:#000;
+color:#00ff88;
+border:1px solid #9333ea;
+font-family:monospace;
+font-size:18px;
+outline:none;">
+
+<option value="PERSONAL">PERSONAL</option>
+<option value="IDEAS">IDEAS</option>
+<option value="PRIVATE">PRIVATE</option>
+<option value="REMINDERS">REMINDERS</option>
+
+</select>
+<div style="text-align:center;margin-top:12px;">
+<button onclick="saveVault()">SAVE ENTRY</button>
+</div>
+
+</div>
+
+<!-- LISTA -->
+<div style="flex:1;min-width:320px;">
+
+<h3 style="color:#00ff88;">ENCRYPTED ARCHIVE</h3>
+
+<div 
+id="vaultOutput"
+style="
+background:#000;
+border:1px solid #9333ea;
+border-radius:10px;
+padding:15px;
+min-height:280px;
+overflow-y:auto;
+font-family:monospace;
+color:#00ff88;
+">
+</div>
+
+</div>
+
+</div>
+
+<div style="text-align:center;margin-top:20px;">
+<button onclick="renderVault()">REFRESH ARCHIVE</button>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+
+/*  MAPA DE ABECEDARIO  */
+const map = {
+a:'10',b:'0111',c:'0101',d:'011',e:'1',f:'1101',g:'001',h:'1111',
+i:'11',j:'1000',k:'010',l:'1011',m:'00',n:'01',o:'000',p:'1001',
+q:'0010',r:'101',s:'111',t:'0',u:'110',v:'1110',w:'100',
+x:'0110',y:'0100',z:'0011'
+};
+
+
+const inv = {};
+for(let k in map) inv[map[k]] = k;
+
+let selectedId = null;
+let openedFolder = null;
+
+function toggleFolder(folder){
+
+openedFolder = openedFolder === folder ? null : folder;
+
+renderVault();
+}
+
+function playSound(type){
+
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
+
+osc.connect(gain);
+gain.connect(ctx.destination);
+
+let freq = 440;
+let duration = 0.18;
+
+switch(type){
+
+case "success":
+freq = 700;
+duration = 0.18;
+break;
+
+case "error":
+freq = 220;
+duration = 0.25;
+break;
+
+case "save":
+freq = 540;
+duration = 0.20;
+break;
+
+case "decrypt":
+freq = 900;
+duration = 0.28;
+break;
+
+case "delete":
+freq = 280;
+duration = 0.22;
+break;
+}
+
+osc.frequency.setValueAtTime(freq, ctx.currentTime);
+osc.type = "triangle";
+
+gain.gain.setValueAtTime(0.12, ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(
+0.001,
+ctx.currentTime + duration
+);
+
+osc.start(ctx.currentTime);
+osc.stop(ctx.currentTime + duration);
+}
+/*  SELECT LOG  */
+function selectLog(id){
+selectedId = id;
+
+document.querySelectorAll("[id^='log-']").forEach(el=>{
+el.style.borderLeft = "3px solid #9333ea";
+el.style.background = "#000";
+});
+
+const el = document.getElementById("log-" + id);
+if(el){
+el.style.background = "#1a1028";
+el.style.borderLeft = "3px solid #ffe600";
+}
+}
+
+document.addEventListener("keydown", function(e){
+
+if(e.ctrlKey && e.key.toLowerCase() === "g"){
+e.preventDefault();
+toggleCamouflage();
+}
+
+if(e.ctrlKey && e.key.toLowerCase() === "d"){
+e.preventDefault();
+
+const vaultVisible = !$("vault").classList.contains("hidden");
+
+if(vaultVisible){
+mostrar("traductor");
+}else{
+let key = prompt("ENTER VAULT ACCESS KEY");
+
+if(key === decryptKey){
+mostrar("vault");
+}else{
+playSound("error");
+}
+}
+}
+
+});
+
+/*  OUTPUT  */
+function type(text){
+$("salida").innerText = '';
+let i = 0;
+
+let interval = setInterval(()=>{
+if(i < text.length){
+$("salida").innerText += text[i++];
+} else clearInterval(interval);
+},10);
+}
+
+/*  LOGIN  */
+function acceder(){
+const pass = $("pass");
+const key = localStorage.getItem('key') || '24212860';
+
+if(pass.value === key){
+    playSound("success");
+localStorage.setItem("lastAccess", new Date().toLocaleString());
+$("login").style.display = 'none';
+$("access").classList.add('show');
+
+setTimeout(()=>{
+$("access").classList.remove('show');
+$("app").classList.remove('hidden');
+},1200);
+}
+else {
+    playSound("error");
+}
+}
+
+/*  NAV  */
+function mostrar(t){
+
+['traductor','historial','config','vault'].forEach(x=>{
+const el = $(x);
+if(el) el.classList.add('hidden');
+});
+
+$(t).classList.remove('hidden');
+
+if(t === 'historial') mostrarHistorial();
+if(t === 'config') loadSystem();
+if(t === 'vault') renderVault();
+}
+
+function autoProcess(){
+
+let input = ($("entrada").value || '').trim();
+
+if(!input) return;
+
+let isBinary = /^[01\s]+$/.test(input);
+
+if(isBinary){
+process('dec');
+}else{
+process('enc');
+}
+}
+
+/*  ENCRYPT  */
+function encrypt(){ process('enc'); }
+function decrypt(){ process('dec'); }
+
+function process(mode){
+$("loader").style.display = 'block';
+
+setTimeout(()=>{
+
+let input = ($("entrada").value || '').toLowerCase();
+let result = '';
+
+/*  ENCRIPTAR  */
+if(mode === 'enc'){
+
+for(let i=0;i<input.length;i++){
+let c = input[i];
+
+if(c === ' '){
+result += '  ';
+continue;
+}
+
+if(map[c] !== undefined){
+result += map[c];
+
+if(input[i+1] && map[input[i+1]]){
+result += ' ';
+}
+
+}else{
+
+result += c;
+}
+}
+
+/*  DESENCRIPTAR  */
+}else{
+
+let clean = input
+.replace(/\s*,\s*/g, ' , ')
+.replace(/\s*\?\s*/g, ' ? ')
+.replace(/\s*!\s*/g, ' ! ')
+.replace(/\s*\.\s*/g, ' . ')
+.trim();
+
+let words = clean.split('  ');
+let out = '';
+
+for(let w of words){
+let tokens = w.split(' ');
+
+for(let t of tokens){
+
+if(!t) continue;
+
+/* signos */
+if([',','?','!','.'].includes(t)){
+    out = out.trimEnd();   
+    out += t + ' ';        
+    continue;
+}
+
+/* binario */
+out += inv[t] || t;
+}
+
+out += ' ';
+}
+
+result = out.trim();
+}
+
+type(result);
+guardarHistorial(input,result,mode);
+
+$("loader").style.display = 'none';
+
+},600);
+}
+
+/*  HISTORIAL  */
+function guardarHistorial(inText,outText,type){
+let h = JSON.parse(localStorage.getItem('historialCipher') || '[]');
+
+h.push({
+id: crypto.randomUUID(),
+entrada: inText,
+salida: outText,
+tipo: type,
+fecha: new Date().toLocaleString()
+});
+
+localStorage.setItem('historialCipher', JSON.stringify(h));
+}
+
+/*  RENDER HISTORIAL  */
+function renderHistorial(data, query=""){
+
+let q = query.toLowerCase().trim();
+
+function highlight(text){
+if(!q) return text;
+let safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+return String(text).replace(new RegExp(safe,'gi'),
+m => `<span class="neon">${m}</span>`);
+}
+
+logBox.innerHTML = data.length ? data.map(i=>`
+<div onclick="selectLog('${i.id}')"
+id="log-${i.id}"
+style="padding:10px;margin:8px 0;border-left:3px solid #9333ea;background:#000;cursor:pointer">
+
+<b>[${highlight(i.tipo)}]</b> ${i.fecha}<br>
+<span style="color:#c084fc">IN:</span> ${highlight(i.entrada)}<br>
+<span style="color:#00ff88">OUT:</span> ${highlight(i.salida)}
+
+</div>
+`).join('') : `<div style="color:#00ff88">NO LOGS FOUND</div>`;
+}
+
+/*  MOSTRAR HISTORIAL  */
+function mostrarHistorial(){
+let data = JSON.parse(localStorage.getItem('historialCipher') || '[]');
+let q = $("searchLog")?.value || '';
+renderHistorial(data,q);
+}
+
+/*  SEARCH  */
+function filtrarHistorial(){
+let q = $("searchLog").value.toLowerCase();
+let h = JSON.parse(localStorage.getItem('historialCipher') || '[]');
+
+let f = h.filter(i =>
+i.entrada.toLowerCase().includes(q) ||
+i.salida.toLowerCase().includes(q) ||
+i.tipo.toLowerCase().includes(q)
+);
+
+renderHistorial(f,q);
+}
+
+/*  DELETE SELECTED  */
+function deleteSelected(){
+if(!selectedId) return;
+
+let logs = JSON.parse(localStorage.getItem('historialCipher') || '[]');
+logs = logs.filter(l => l.id !== selectedId);
+
+localStorage.setItem('historialCipher', JSON.stringify(logs));
+playSound("delete");
+selectedId = null;
+mostrarHistorial();
+}
+
+/*  DELETE ALL  */
+function deleteAllLogs(){
+localStorage.removeItem('historialCipher');
+selectedId = null;
+mostrarHistorial();
+}
+
+/*  SYSTEM PANEL  */
+function loadSystem(){
+
+let logs = JSON.parse(localStorage.getItem('historialCipher') || '[]');
+let entries = JSON.parse(localStorage.getItem('vaultEntries') || '[]');
+
+let important = entries.filter(e => e.important).length;
+
+let lastAccess = localStorage.getItem("lastAccess") || "FIRST SESSION";
+
+$("config").innerHTML = `
+<div style="color:#00ff88;font-family:monospace">
+
+<h2>SYSTEM CONTROL</h2><br>
+
+SYSTEM STATUS: ONLINE<br><br>
+
+✔ ENCRYPT ENGINE ACTIVE<br>
+✔ DECRYPT ENGINE ACTIVE<br>
+✔ HISTORY MODULE OK<br>
+✔ SEARCH SYSTEM OK<br>
+✔ EXPORT SYSTEM OK<br>
+✔ DELETE MODULE READY<br>
+✔ LOGIN SECURITY OK<br><br>
+
+──────── ACTIVITY MONITOR ────────<br><br>
+
+TOTAL LOGS: ${logs.length}<br>
+LAST ACCESS: ${lastAccess}<br><br>
+
+<button onclick="changePassword()">CHANGE LOGIN PASSWORD</button>
+<br><br>
+
+<button onclick="backupData()">BACKUP DATA</button>
+
+<button onclick="restoreData()">RESTORE DATA</button>
+
+<input type="file" id="restoreFile" style="display:none"
+onchange="restoreFile(event)">
+<div id="pwdStatus" style="margin-top:10px;color:#c084fc;"></div>
+
+</div>
+`;
+}
+
+function backupData(){
+
+const data = {
+historial: JSON.parse(localStorage.getItem("historialCipher") || "[]"),
+vault: JSON.parse(localStorage.getItem("vaultEntries") || "[]"),
+key: localStorage.getItem("key") || "24212860",
+lastAccess: localStorage.getItem("lastAccess") || ""
+};
+
+const blob = new Blob(
+[JSON.stringify(data,null,2)],
+{type:"application/json"}
+);
+
+const a = document.createElement("a");
+
+a.href = URL.createObjectURL(blob);
+a.download = "cipher_backup.json";
+a.click();
+}
+
+function restoreData(){
+$("restoreFile").click();
+}
+
+function restoreFile(event){
+
+const file = event.target.files[0];
+if(!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+try{
+
+const data = JSON.parse(e.target.result);
+
+localStorage.setItem(
+"historialCipher",
+JSON.stringify(data.historial || [])
+);
+
+localStorage.setItem(
+"vaultEntries",
+JSON.stringify(data.vault || [])
+);
+
+localStorage.setItem(
+"key",
+data.key || "24212860"
+);
+
+localStorage.setItem(
+"lastAccess",
+data.lastAccess || ""
+);
+
+alert("BACKUP RESTORED");
+
+location.reload();
+
+}catch{
+alert("INVALID BACKUP FILE");
+}
+
+};
+
+reader.readAsText(file);
+}
+
+let camouflage = false;
+let camoLock = false;
+
+function toggleCamouflage(){
+
+if(camoLock) return;
+
+camoLock = true;
+
+setTimeout(()=>{
+camoLock = false;
+},500);
+
+camouflage = !camouflage;
+
+if(camouflage){
+
+$("matrix").style.display = "none";
+
+$("app").innerHTML = `
+<div style="
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#ffe4f2,#f3e8ff,#fdf2f8);
+z-index:9999;">
+
+<div style="
+width:360px;
+padding:28px;
+background:rgba(255,255,255,.88);
+backdrop-filter:blur(12px);
+border-radius:28px;
+box-shadow:0 10px 35px rgba(186,104,200,.18);
+text-align:center;
+font-family:'Segoe UI',sans-serif;">
+
+<h2 style="color:#c084fc;"> Calculator</h2>
+
+<input id="calcDisplay" readonly style="
+width:100%;
+padding:18px;
+font-size:28px;
+text-align:right;
+border:none;
+border-radius:18px;
+background:#fff0f8;
+color:#7c3aed;
+margin-bottom:22px;">
+
+<div style="
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;">
+
+${['7','8','9','/',
+'4','5','6','*',
+'1','2','3','-',
+'0','.','=','+']
+.map(b=>`<button onclick="calcPress('${b}')">${b}</button>`).join('')}
+
+</div>
+
+<br>
+
+<button onclick="calcPress('CLR')">CLR</button>
+
+</div>
+</div>
+`;
+
+}else{
+
+$("matrix").style.display = "block";
+location.reload();
+
+}
+}
+
+function calcPress(v){
+
+    let d = $("calcDisplay");
+
+    if(!d) return;
+
+    if(v === 'CLR'){
+        d.value = "";
+        return;
+    }
+
+    if(v === '='){
+        try{
+            d.value = eval(d.value);
+        }catch{
+            d.value = "ERROR";
+        }
+    }else{
+        d.value += v;
+    }
+}
+
+/*  EXPORT  */
+function exportar(){
+const c = `CIPHER PRO EXPORT\IN:\n\nn${$("entrada").value}\n\nOUT:\n${$("salida").innerText}`;
+
+const b = new Blob([c],{type:'text/plain'});
+const a = document.createElement('a');
+
+a.href = URL.createObjectURL(b);
+a.download = 'cipher_pro.txt';
+a.click();
+}
+
+/*  UTILS  */
+function copiar(){
+navigator.clipboard.writeText($("salida").innerText);
+}
+
+function limpiar(){
+$("entrada").value = '';
+$("salida").innerText = '';
+}
+
+/* INIT SYSTEM */
+loadSystem();
+
+function changePassword(){
+
+let current = prompt("ENTER CURRENT PASSWORD:");
+if(current === null) return;
+
+let saved = localStorage.getItem('key') || '24212860';
+
+if(current !== saved){
+alert("ACCESS DENIED");
+return;
+}
+
+let newPass = prompt("ENTER NEW PASSWORD:");
+if(newPass === null) return;
+
+newPass = newPass.trim();
+
+if(newPass.length < 3){
+alert("PASSWORD TOO SHORT");
+return;
+}
+
+let confirmPass = prompt("CONFIRM NEW PASSWORD:");
+if(confirmPass !== newPass){
+alert("PASSWORDS DO NOT MATCH");
+return;
+}
+
+localStorage.setItem('key', newPass);
+
+let status = document.getElementById("pwdStatus");
+if(status){
+status.innerText = "PASSWORD UPDATED SUCCESSFULLY ✔";
+}
+
+}
+
+/* BACKGROUND  */
+
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = "01";
+const fontSize = 18;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+
+for(let i=0; i<columns; i++){
+    drops[i]=1;
+}
+
+function drawMatrix(){
+
+ctx.fillStyle = "rgba(0,0,0,0.08)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle = "#00ff88";
+ctx.font = fontSize + "px monospace";
+
+for(let i=0;i<drops.length;i++){
+
+const text = chars[Math.floor(Math.random()*chars.length)];
+
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
+drops[i]=0;
+}
+
+drops[i]++;
+}
+}
+
+setInterval(drawMatrix,35);
+
+window.addEventListener("resize",()=>{
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+});
+
+/*  VAULT  */
+
+const decryptKey = "221264";
+
+/* ENCRYPT */
+function encryptVault(text){
+
+let result = '';
+
+for(let i=0;i<text.length;i++){
+
+let c = text[i].toLowerCase();
+
+if(c === ' '){
+result += '  ';
+continue;
+}
+
+if(map[c] !== undefined){
+
+result += map[c];
+
+if(text[i+1] && map[text[i+1].toLowerCase()]){
+result += ' ';
+}
+
+}else{
+result += c;
+}
+}
+
+return result;
+}
+
+/* DECRYPT */
+function decryptVault(binary){
+
+let clean = binary
+.replace(/\s*,\s*/g,' , ')
+.replace(/\s*\?\s*/g,' ? ')
+.replace(/\s*!\s*/g,' ! ')
+.replace(/\s*\.\s*/g,' . ')
+.trim();
+
+let words = clean.split('  ');
+let out = '';
+
+for(let w of words){
+
+let tokens = w.split(' ');
+
+for(let t of tokens){
+
+if(!t) continue;
+
+if([',','?','!','.'].includes(t)){
+out = out.trimEnd();
+out += t + ' ';
+continue;
+}
+
+out += inv[t] || t;
+}
+
+out += ' ';
+}
+
+return out.trim();
+}
+
+/* SAVE */
+function saveVault(){
+
+const input = $("vaultInput");
+
+if(!input || !input.value.trim()){
+alert("EMPTY ENTRY");
+return;
+}
+
+let encrypted = encryptVault(input.value);
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+entries.push({
+id: crypto.randomUUID(),
+titulo: $("vaultTitle").value || "UNTITLED ENTRY",
+folder: $("vaultFolder").value,
+fecha: new Date().toLocaleString(),
+important: false,
+data: encrypted
+});
+
+localStorage.setItem("vaultEntries", JSON.stringify(entries));
+
+playSound("save");
+
+$("vaultInput").value = "";
+$("vaultTitle").value = "";
+
+renderVault();
+}
+
+function renderVault(){
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let folders = {};
+
+entries.forEach(e=>{
+
+let folder = e.folder || "PERSONAL";
+
+if(!folders[folder]) folders[folder] = [];
+
+folders[folder].push(e);
+
+});
+
+$("vaultOutput").innerHTML = Object.keys(folders).length
+? Object.keys(folders).map(folder => `
+
+<div style="
+margin:12px 0;
+padding:14px;
+border:1px solid #9333ea;
+cursor:pointer;"
+onclick="toggleFolder('${folder}')">
+
+<h3 style="color:#00ff88;margin:0;">
+${openedFolder===folder ? '📂' : '📁'} ${folder}
+</h3>
+
+</div>
+
+${openedFolder===folder
+? folders[folder].map(e => `
+<div style="
+padding:12px;
+margin:8px 0 8px 25px;
+border-left:3px solid ${e.important ? '#ffe600' : '#9333ea'};
+background:#000;">
+
+<b>${e.important ? '★ ' : ''}${e.titulo}</b><br>
+${e.fecha}<br><br>
+
+<button onclick="event.stopPropagation();openVault('${e.id}')">OPEN</button>
+
+<button onclick="event.stopPropagation();editVault('${e.id}')">EDIT</button>
+
+<button onclick="event.stopPropagation();toggleImportant('${e.id}')">
+${e.important ? 'UNMARK' : 'IMPORTANT'}
+</button>
+
+<button onclick="event.stopPropagation();deleteVault('${e.id}')">
+DELETE
+</button>
+
+</div>
+`).join('')
+: ''}
+
+`).join('')
+: "NO ENTRIES";
+}
+
+function toggleImportant(id){
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let entry = entries.find(e => e.id === id);
+
+if(entry){
+entry.important = !entry.important;
+}
+
+localStorage.setItem("vaultEntries", JSON.stringify(entries));
+
+renderVault();
+}
+
+/* OPEN */
+function openVault(id){
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let entry = entries.find(e => e.id === id);
+
+if(!entry) return;
+
+$("vaultOutput").innerHTML = `
+<div style="white-space:pre-wrap;">
+<b>${entry.titulo}</b><br><br>
+
+${entry.data}
+
+</div>
+
+<br>
+<button onclick="translateVault('${id}')">TRANSLATE</button>
+<button onclick="renderVault()">BACK</button>
+`;
+}
+let vaultTimer = null;
+function translateVault(id){
+
+let key = prompt("ENTER DECRYPTION KEY");
+
+if(key !== decryptKey){
+alert("INVALID KEY");
+return;
+}
+
+playSound("decrypt");
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let entry = entries.find(e => e.id === id);
+
+if(!entry) return;
+
+$("vaultOutput").innerHTML = `
+<div style="white-space:pre-wrap;">
+<b>${entry.titulo}</b><br><br>
+${decryptVault(entry.data)}
+</div>
+
+<br>
+<button onclick="openVault('${id}')">SHOW BINARY</button>
+<button onclick="renderVault()">BACK</button>
+`;
+
+clearTimeout(vaultTimer);
+
+vaultTimer = setTimeout(()=>{
+openVault(id);
+},10000);
+}
+
+function editVault(id){
+
+let key = prompt("ENTER DECRYPTION KEY");
+
+if(key !== decryptKey){
+playSound("error");
+alert("INVALID KEY");
+return;
+}
+
+playSound("decrypt");
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let entry = entries.find(e => e.id === id);
+
+if(!entry) return;
+
+$("vaultOutput").innerHTML = `
+<h3>EDIT ENTRY</h3>
+
+<input id="editTitle" value="${entry.titulo}" style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+background:#000;
+color:#00ff88;
+border:1px solid #9333ea;">
+
+<select id="editFolder" style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+background:#000;
+color:#00ff88;
+border:1px solid #9333ea;">
+
+<option value="PERSONAL" ${entry.folder==="PERSONAL"?"selected":""}>PERSONAL</option>
+<option value="IDEAS" ${entry.folder==="IDEAS"?"selected":""}>IDEAS</option>
+<option value="PRIVATE" ${entry.folder==="PRIVATE"?"selected":""}>PRIVATE</option>
+<option value="REMINDERS" ${entry.folder==="REMINDERS"?"selected":""}>REMINDERS</option>
+
+</select>
+
+<textarea id="editContent" style="
+width:100%;
+height:220px;
+padding:10px;
+background:#000;
+color:#00ff88;
+border:1px solid #9333ea;">${decryptVault(entry.data)}</textarea>
+
+<br><br>
+
+<button onclick="saveEditedVault('${id}')">
+SAVE CHANGES
+</button>
+
+<button onclick="renderVault()">CANCEL</button>
+`;
+}
+
+function saveEditedVault(id){
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+let entry = entries.find(e => e.id === id);
+
+if(!entry) return;
+
+entry.titulo = $("editTitle").value.trim() || "UNTITLED ENTRY";
+
+entry.folder = $("editFolder").value;
+
+entry.data = encryptVault($("editContent").value);
+
+entry.fecha = new Date().toLocaleString();
+
+localStorage.setItem(
+"vaultEntries",
+JSON.stringify(entries)
+);
+
+playSound("save");
+
+renderVault();
+}
+
+/* DELETE */
+function deleteVault(id){
+
+let entries = JSON.parse(localStorage.getItem("vaultEntries") || "[]");
+
+entries = entries.filter(e => e.id !== id);
+
+localStorage.setItem("vaultEntries", JSON.stringify(entries));
+playSound("delete");
+renderVault();
+}
+
+renderVault();
+
+
+document.addEventListener("keydown", function(e){
+
+if(e.ctrlKey && e.key.toLowerCase() === "g"){
+
+e.preventDefault();
+
+toggleCamouflage();
+}
+});
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+</body>
+</html>
