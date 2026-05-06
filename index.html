@@ -1,13 +1,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CIPHER PRO</title>
 <link rel="icon" type="image/png" href="lol.png">
 <link rel="shortcut icon" href="lol.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#9333ea">
-    
 <style>
 
 body {
@@ -392,6 +391,8 @@ ctx.currentTime + duration
 osc.start(ctx.currentTime);
 osc.stop(ctx.currentTime + duration);
 }
+
+
 /*  SELECT LOG  */
 function selectLog(id){
 selectedId = id;
@@ -454,16 +455,14 @@ const key = localStorage.getItem('key') || '24212860';
 
 if(pass.value === key){
     playSound("success");
-    localStorage.setItem("lastAccess", new Date().toLocaleString());
-    $("login").style.display = 'none';
-    $("access").classList.add('show');
+localStorage.setItem("lastAccess", new Date().toLocaleString());
+$("login").style.display = 'none';
+$("access").classList.add('show');
 
-    setTimeout(()=>{
-        $("access").classList.remove('show');
-        $("app").classList.remove('hidden');
-        enableMobileGestures();
-    },1200);
-
+setTimeout(()=>{
+$("access").classList.remove('show');
+$("app").classList.remove('hidden');
+},1200);
 }
 else {
     playSound("error");
@@ -808,8 +807,7 @@ display:flex;
 justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#ffe4f2,#f3e8ff,#fdf2f8);
-z-index:999999;
-pointer-events:auto;">
+z-index:9999;">
 
 <div style="
 width:360px;
@@ -843,7 +841,7 @@ ${['7','8','9','/',
 '4','5','6','*',
 '1','2','3','-',
 '0','.','=','+']
-.map(b=>`<button onclick="calcPress('${b}')">${b}</button>`).join('')
+.map(b=>`<button onclick="calcPress('${b}')">${b}</button>`).join('')}
 
 </div>
 
@@ -884,6 +882,7 @@ function calcPress(v){
         d.value += v;
     }
 }
+
 /*  EXPORT  */
 function exportar(){
 const c = `CIPHER PRO EXPORT\IN:\n\nn${$("entrada").value}\n\nOUT:\n${$("salida").innerText}`;
@@ -1334,7 +1333,6 @@ renderVault();
 
 renderVault();
 
-    
 
 document.addEventListener("keydown", function(e){
 
@@ -1350,23 +1348,25 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
 
-function enableMobileGestures(){
-
-let lastTap = 0;
+let tapCount = 0;
 let pressTimer;
+
 
 document.addEventListener("touchend", function(){
 
-    let now = Date.now();
+    tapCount++;
 
-    if(now - lastTap < 500){
-        toggleCamouflage();
+    if(tapCount === 1){
+        setTimeout(() => {
+            if(tapCount === 2){
+                toggleCamouflage();
+            }
+            tapCount = 0;
+        }, 300);
     }
 
-    lastTap = now;
-
-    clearTimeout(pressTimer);
 });
+
 
 document.addEventListener("touchstart", function(){
 
@@ -1386,11 +1386,13 @@ document.addEventListener("touchstart", function(){
             }
         }
 
-    }, 1000);
+    }, 1500);
 
 });
 
-}
+document.addEventListener("touchend", function(){
+    clearTimeout(pressTimer);
+});
 </script>
 
 </body>
