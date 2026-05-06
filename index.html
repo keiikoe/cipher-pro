@@ -1332,6 +1332,7 @@ renderVault();
 
 renderVault();
 
+    
 
 document.addEventListener("keydown", function(e){
 
@@ -1347,25 +1348,37 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
 
+function appUnlocked(){
+    return !$("app").classList.contains("hidden");
+}
 
 let lastTap = 0;
 let pressTimer;
 
+function appUnlocked(){
+    return !$("app").classList.contains("hidden");
+}
+
 // DOBLE TAP
-document.addEventListener("touchend", function(e){
+document.addEventListener("touchend", function(){
 
-    const now = new Date().getTime();
-    const diff = now - lastTap;
+    if(!appUnlocked()) return;
 
-    if(diff < 300 && diff > 0){
+    let now = Date.now();
+
+    if(now - lastTap < 500){
         toggleCamouflage();
     }
 
     lastTap = now;
+
+    clearTimeout(pressTimer);
 });
 
 // LONG PRESS
 document.addEventListener("touchstart", function(){
+
+    if(!appUnlocked()) return;
 
     pressTimer = setTimeout(() => {
 
@@ -1385,10 +1398,6 @@ document.addEventListener("touchstart", function(){
 
     }, 1000);
 
-});
-
-document.addEventListener("touchend", function(){
-    clearTimeout(pressTimer);
 });
 </script>
 
